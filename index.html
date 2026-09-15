@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Shortownia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@500;600&display=swap');
+
+  :root{
+    --bg:#FFFFFF;
+    --surface:#F9F9F9;
+    --ink:#0F0F0F;
+    --muted:#606060;
+    --line:#E5E5E5;
+    --red:#FF0000;
+    --red-text:#CC0000;
+    --on-red:#FFFFFF;
+    --growth:#2BA640;
+    --shadow: rgba(15,15,15,.12);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F0F0F;
+      --surface:#181818;
+      --ink:#F1F1F1;
+      --muted:#AAAAAA;
+      --line:#3F3F3F;
+      --red:#FF3B30;
+      --red-text:#FF6B61;
+      --on-red:#FFFFFF;
+      --growth:#5FC98A;
+      --shadow: rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F0F0F;
+    --surface:#181818;
+    --ink:#F1F1F1;
+    --muted:#AAAAAA;
+    --line:#3F3F3F;
+    --red:#FF3B30;
+    --red-text:#FF6B61;
+    --on-red:#FFFFFF;
+    --growth:#5FC98A;
+    --shadow: rgba(0,0,0,.5);
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Roboto','Helvetica Neue',Arial,sans-serif;
+    padding-inline:20px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Roboto',sans-serif;
+    font-weight:900;
+    letter-spacing:-0.01em;
+    text-wrap:balance;
+    margin:0;
+    color:var(--ink);
+  }
+  .mono{ font-family:'Roboto Mono','SFMono-Regular',Consolas,monospace; font-variant-numeric:tabular-nums; }
+  .eyebrow{ font-size:.78rem; letter-spacing:.04em; text-transform:uppercase; color:var(--red-text); font-weight:700; display:inline-flex; align-items:center; gap:6px; }
+  .eyebrow .reddot{ width:7px; height:7px; border-radius:50%; background:var(--red); flex-shrink:0; }
+  a{ color:inherit; }
+  .wrap{ max-width:1100px; margin-inline:auto; }
+  section{ padding-block:64px; }
+  @media (max-width:640px){ section{ padding-block:44px; } }
+  .lede{ color:var(--muted); font-size:1.03rem; max-width:66ch; }
+  svg.ic{ width:1em; height:1em; display:inline-block; vertical-align:-0.14em; fill:currentColor; }
+
+  /* reveal-on-scroll */
+  .reveal{ opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.is-visible{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .reveal{ opacity:1; transform:none; transition:none; } }
+
+  /* ---------- nav ---------- */
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding-block:18px; gap:16px; flex-wrap:wrap; border-bottom:1px solid var(--line); }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:1.05rem; }
+  .jump-nav{ display:flex; gap:26px; }
+  .jump-nav a{ font-size:.9rem; font-weight:500; color:var(--muted); text-decoration:none; }
+  .jump-nav a:hover{ color:var(--ink); }
+  @media (max-width:760px){ .jump-nav{ display:none; } }
+
+  .sticky-cta{ position:fixed; left:0; right:0; bottom:0; z-index:40; background:var(--bg); border-top:1px solid var(--line); padding:12px 20px; display:none; align-items:center; justify-content:space-between; gap:14px; box-shadow:0 -8px 24px -12px var(--shadow); transform:translateY(100%); transition:transform .25s ease; }
+  .sticky-cta.show{ transform:translateY(0); }
+  .sticky-cta .price{ font-weight:700; font-size:.95rem; }
+  .sticky-cta .price small{ display:block; font-weight:400; color:var(--muted); font-size:.72rem; }
+  .sticky-cta .btn{ flex-shrink:0; }
+  @media (max-width:760px){ .sticky-cta{ display:flex; } body{ padding-bottom:70px; } }
+  @media (prefers-reduced-motion: reduce){ .sticky-cta{ transition:none; } }
+  .brand .avatar{ width:32px; height:32px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .brand .avatar svg{ width:13px; height:13px; fill:#fff; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:11px 22px; border-radius:20px; border:none; cursor:pointer; font-family:'Roboto',sans-serif; font-weight:700; font-size:.92rem; text-decoration:none; white-space:nowrap; transition:filter .15s ease, transform .15s ease; }
+  .btn-primary{ background:var(--red); color:var(--on-red); }
+  .btn-primary:hover{ filter:brightness(1.08); }
+  .btn-primary .bell{ transition:transform .4s ease; transform-origin:50% 20%; }
+  .btn-primary:hover .bell{ animation:ring .5s ease; }
+  @keyframes ring{ 0%,100%{ transform:rotate(0);} 20%{ transform:rotate(14deg);} 40%{ transform:rotate(-12deg);} 60%{ transform:rotate(8deg);} 80%{ transform:rotate(-6deg);} }
+  .btn-outline{ background:transparent; color:var(--ink); border:1px solid var(--line); }
+  .btn-outline:hover{ border-color:var(--muted); }
+  .btn-ghost{ background:var(--surface); color:var(--ink); }
+  .btn-ghost:hover{ background:var(--line); }
+  @media (prefers-reduced-motion: reduce){ .btn-primary:hover .bell{ animation:none; } }
+
+  /* ---------- hero ---------- */
+  .hero{ display:grid; grid-template-columns:1fr .85fr; gap:56px; align-items:center; padding-block:60px 56px; }
+  @media (max-width:860px){ .hero{ grid-template-columns:1fr; padding-block:36px 8px; } }
+  .hero h1{ font-size:clamp(2.3rem,4.6vw,3.5rem); line-height:1.05; margin-block:16px 20px; }
+  .hero h1 span{ color:var(--red-text); }
+  .hero-lead{ color:var(--muted); font-size:1.05rem; max-width:48ch; margin-bottom:28px; }
+  .hero-ctas{ display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:30px; }
+  .link-play{ font-weight:700; color:var(--ink); text-decoration:none; font-size:.94rem; display:inline-flex; align-items:center; gap:8px; }
+  .link-play .circ{ width:26px; height:26px; border-radius:50%; border:1.5px solid var(--ink); display:inline-flex; align-items:center; justify-content:center; }
+  .link-play svg{ width:9px; height:9px; fill:var(--ink); margin-left:1px; }
+  .stat-line{ font-size:.9rem; color:var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap:5px; }
+  .stat-line b{ color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums; }
+  .stat-line .item{ display:inline-flex; align-items:center; gap:5px; }
+  .stat-line .sep{ color:var(--line); margin-inline:2px; }
+
+  .hero-shot{ position:relative; border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:0 18px 36px -18px var(--shadow); }
+  .hero-shot img{ width:100%; display:block; }
+  .hero-shot .bar{ height:3px; background:var(--line); position:relative; overflow:hidden; }
+  .hero-shot .bar::after{ content:''; position:absolute; inset:0; width:0%; background:var(--red); animation:fillbar 1.4s .3s ease forwards; }
+  @keyframes fillbar{ to{ width:78%; } }
+  @media (prefers-reduced-motion: reduce){ .hero-shot .bar::after{ animation:none; width:78%; } }
+  .hero-shot-cap{ margin-top:12px; font-size:.82rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
+
+  /* hero load-in */
+  .hero-anim{ opacity:0; transform:translateY(16px); animation:heroIn .6s ease forwards; }
+  @keyframes heroIn{ to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ .hero-anim{ opacity:1; transform:none; animation:none; } }
+
+  /* ---------- proof stats ---------- */
+  .proof-head{ max-width:66ch; margin-bottom:20px; }
+  .proof-head h2{ font-size:clamp(1.7rem,3.2vw,2.3rem); margin-top:10px; }
+  .proof-head p{ color:var(--muted); margin-top:14px; }
+  .stats-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-block:32px 16px; }
+  .stats-row.cols-3{ grid-template-columns:repeat(3,1fr); }
+  @media (max-width:700px){ .stats-row{ grid-template-columns:repeat(2,1fr); } .stats-row.cols-3{ grid-template-columns:1fr; } }
+  .stat{ background:var(--surface); padding:24px 22px; }
+  .stat .lbl{ font-size:.72rem; letter-spacing:.03em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .stat .lbl svg{ width:13px; height:13px; fill:var(--muted); }
+  .stat .val{ font-size:clamp(1.8rem,3vw,2.3rem); font-weight:900; margin-block:8px 4px; font-variant-numeric:tabular-nums; }
+  .stat .delta{ display:flex; align-items:center; gap:5px; color:var(--growth); font-size:.78rem; font-weight:700; }
+  .stat .delta svg{ width:11px; height:11px; }
+  .proof-note{ color:var(--muted); font-size:.85rem; }
+
+  .gallery-intro{ margin-top:56px; margin-bottom:24px; max-width:66ch; }
+  .gallery-intro h3{ font-size:1.3rem; margin-bottom:10px; font-weight:900; }
+  .gallery-intro p{ color:var(--muted); }
+  .gallery{ column-count:3; column-gap:18px; }
+  @media (max-width:900px){ .gallery{ column-count:2; } }
+  @media (max-width:600px){ .gallery{ column-count:1; } }
+  .gallery figure{ break-inside:avoid; margin:0 0 20px; }
+  .gallery .thumb{ position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--line); transition:box-shadow .25s ease, transform .25s ease; }
+  .gallery .thumb:hover{ box-shadow:0 14px 30px -12px var(--shadow); transform:translateY(-3px); }
+  .gallery img{ width:100%; height:auto; display:block; transition:transform .35s ease; }
+  .gallery .thumb:hover img{ transform:scale(1.035); }
+  .gallery .play-badge{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .25s ease; background:rgba(0,0,0,.15); }
+  .gallery .thumb:hover .play-badge{ opacity:1; }
+  .gallery .play-badge span{ width:44px; height:44px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(0,0,0,.35); }
+  .gallery .play-badge svg{ width:14px; height:14px; fill:#fff; margin-left:2px; }
+  .gallery figcaption{ padding-top:10px; font-size:.8rem; color:var(--muted); }
+  .gallery-note{ margin-top:6px; color:var(--muted); font-size:.85rem; max-width:60ch; }
+  @media (prefers-reduced-motion: reduce){ .gallery .thumb, .gallery img, .gallery .play-badge{ transition:none; } }
+
+  /* ---------- curriculum (playlist style) ---------- */
+  .curr-head h2{ font-size:clamp(1.7rem,3.2vw,2.3rem); margin-top:10px; margin-bottom:14px; }
+  .curr-head p{ margin-bottom:40px; }
+  .modules{ display:flex; flex-direction:column; }
+  .module{ display:grid; grid-template-columns:52px 1fr; gap:22px; padding-block:28px; border-top:1px solid var(--line); }
+  .module:last-child{ border-bottom:1px solid var(--line); }
+  @media (max-width:640px){ .module{ grid-template-columns:36px 1fr; gap:14px; } }
+  .module .num{ width:36px; height:36px; border-radius:8px; background:var(--red); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.95rem; margin-top:.15em; }
+  @media (max-width:640px){ .module .num{ width:28px; height:28px; font-size:.8rem; } }
+  .module h3{ font-size:1.18rem; margin-bottom:10px; font-weight:700; }
+  .module p{ color:var(--muted); max-width:62ch; margin-bottom:16px; }
+  .module .meta{ font-size:.78rem; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+  .module .meta svg{ width:13px; height:13px; fill:var(--muted); }
+  .module ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:11px; max-width:64ch; }
+  .module li{ display:flex; gap:12px; color:var(--ink); font-size:.93rem; align-items:baseline; }
+  .module li .lno{ font-family:'Roboto Mono',monospace; color:var(--red-text); font-size:.78rem; font-weight:600; flex-shrink:0; min-width:2.4em; }
+
+  /* ---------- honesty ---------- */
+  .honesty{ display:grid; grid-template-columns:210px 1fr; gap:40px; padding:44px; background:var(--surface); border-radius:14px; }
+  @media (max-width:700px){ .honesty{ grid-template-columns:1fr; gap:16px; padding:28px; } }
+  .honesty-stat .val{ font-size:2.6rem; font-weight:900; color:var(--red-text); line-height:1; }
+  .honesty-stat .lbl{ margin-top:8px; font-size:.78rem; color:var(--muted); max-width:20ch; }
+  .honesty h2{ font-size:clamp(1.4rem,2.6vw,1.9rem); margin-bottom:16px; font-weight:700; }
+  .honesty p{ color:var(--muted); max-width:70ch; margin-bottom:14px; }
+  .honesty p:last-child{ margin-bottom:0; }
+  .honesty strong{ color:var(--ink); font-weight:700; }
+
+  /* ---------- for whom ---------- */
+  .whom-intro{ max-width:66ch; margin-bottom:32px; }
+  .whom-intro p{ color:var(--muted); margin-top:10px; }
+  .whom{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:700px){ .whom{ grid-template-columns:1fr; } }
+  .whom .col{ padding:26px; border-radius:12px; }
+  .whom .yes{ background:color-mix(in srgb, var(--growth) 8%, var(--surface)); }
+  .whom .no{ background:var(--surface); }
+  .whom h3{ font-size:1rem; margin-bottom:16px; font-weight:700; }
+  .whom ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:12px; }
+  .whom li{ display:flex; gap:10px; color:var(--muted); font-size:.94rem; }
+  .whom li svg{ width:15px; height:15px; flex-shrink:0; margin-top:.15em; }
+  .whom .yes li svg{ fill:var(--growth); }
+  .whom .no li svg{ fill:var(--muted); }
+
+  /* ---------- about ---------- */
+  .about{ display:grid; grid-template-columns:.65fr 1.35fr; gap:36px; align-items:start; }
+  @media (max-width:700px){ .about{ grid-template-columns:1fr; } }
+  .about blockquote{ margin:0 0 20px; font-size:1.25rem; line-height:1.5; font-weight:700; }
+  .about blockquote .qtext::before{ content:'\201C'; color:var(--red-text); }
+  .about blockquote .qtext::after{ content:'\201D'; color:var(--red-text); }
+  .about p{ color:var(--muted); max-width:62ch; }
+  .about cite{ display:block; margin-top:18px; font-style:normal; color:var(--muted); font-size:.85rem; }
+
+  /* ---------- pricing ---------- */
+  .price-head{ max-width:60ch; margin-bottom:40px; }
+  .price-head p{ color:var(--muted); margin-top:10px; }
+  .offer-group{ display:flex; align-items:baseline; gap:12px; margin-bottom:20px; }
+  .offer-num{ font-family:'Roboto Mono',monospace; color:var(--red-text); font-weight:700; font-size:.85rem; flex-shrink:0; }
+  .offer-group h3{ font-size:1.15rem; font-weight:900; }
+  .pricing-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:start; }
+  .pricing-grid.cols-2{ grid-template-columns:repeat(2,1fr); max-width:760px; }
+  .pricing-grid.cols-1{ grid-template-columns:1fr; max-width:480px; }
+  .pricing-grid.cols-1.wide{ max-width:640px; }
+  @media (max-width:820px){ .pricing-grid{ grid-template-columns:1fr; max-width:420px; margin-inline:auto; } .pricing-grid.cols-2{ grid-template-columns:1fr; } .pricing-grid.cols-1.wide{ max-width:420px; } }
+  .ebook-card{ display:grid; grid-template-columns:130px 1fr; gap:26px; align-items:start; }
+  @media (max-width:480px){ .ebook-card{ grid-template-columns:1fr; justify-items:center; text-align:center; } }
+  .ebook-cover{ width:130px; height:174px; border-radius:5px; background:linear-gradient(150deg,var(--red),var(--red-text)); box-shadow:0 16px 26px -12px var(--shadow), 0 3px 8px rgba(0,0,0,.18); display:flex; flex-direction:column; justify-content:space-between; padding:14px; color:#fff; transform:rotate(-3deg); flex-shrink:0; }
+  .ebook-cover .brandmark{ display:flex; align-items:center; gap:5px; font-size:.6rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; opacity:.9; }
+  .ebook-cover .brandmark svg{ width:10px; height:10px; fill:#fff; }
+  .ebook-cover .cover-title{ font-size:.98rem; font-weight:900; line-height:1.18; }
+  .ebook-cover .cover-tag{ font-size:.58rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; opacity:.85; }
+  .price-card{ padding:30px 26px; border-radius:14px; background:var(--surface); border:1px solid var(--line); }
+  .price-card.featured{ background:var(--bg); border:2px solid var(--red); position:relative; }
+  .price-tier-lbl{ font-size:.7rem; letter-spacing:.05em; text-transform:uppercase; color:var(--red-text); font-weight:700; margin-bottom:10px; min-height:1em; }
+  .price-card h3{ font-size:1.05rem; font-weight:700; }
+  .price-num{ font-size:2.2rem; font-weight:900; margin-block:12px 2px; font-variant-numeric:tabular-nums; }
+  .price-sub{ color:var(--muted); font-size:.8rem; margin-bottom:24px; }
+  .price-list{ list-style:none; padding:0; margin:0 0 26px; display:flex; flex-direction:column; gap:12px; }
+  .price-list li{ display:flex; gap:9px; font-size:.88rem; color:var(--muted); }
+  .price-list li svg{ width:14px; height:14px; fill:var(--growth); flex-shrink:0; margin-top:.2em; }
+  .price-card .btn{ width:100%; justify-content:center; }
+  .price-fine{ margin-top:24px; font-size:.8rem; color:var(--muted); }
+  .trust-row{ display:flex; flex-wrap:wrap; gap:22px; margin-top:22px; padding-top:22px; border-top:1px solid var(--line); }
+  .trust-row span{ display:flex; align-items:center; gap:7px; font-size:.82rem; color:var(--muted); }
+  .trust-row svg{ width:16px; height:16px; fill:var(--muted); flex-shrink:0; }
+
+  /* ---------- faq ---------- */
+  .faq-head h2{ font-size:clamp(1.7rem,3.2vw,2.3rem); margin-bottom:28px; }
+  details{ border-top:1px solid var(--line); padding-block:18px; }
+  details:last-child{ border-bottom:1px solid var(--line); }
+  summary{ cursor:pointer; font-weight:700; font-size:1rem; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  summary::-webkit-details-marker{ display:none; }
+  summary .chev{ width:11px; height:11px; border-right:2px solid var(--red); border-bottom:2px solid var(--red); transform:rotate(45deg); transition:transform .2s ease; flex-shrink:0; }
+  details[open] summary .chev{ transform:rotate(-135deg); }
+  details p{ color:var(--muted); margin-top:14px; max-width:64ch; font-size:.94rem; }
+
+  footer{ border-top:1px solid var(--line); padding-block:28px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; color:var(--muted); font-size:.8rem; }
+  footer .brand .avatar{ width:24px; height:24px; }
+  footer .brand .avatar svg{ width:10px; height:10px; }
+  footer .fine{ max-width:56ch; }
+
+  :focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="nav">
+    <div class="brand"><span class="avatar"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>Shortownia</div>
+    <nav class="jump-nav">
+      <a href="#dowody">Dowody</a>
+      <a href="#program">Program</a>
+      <a href="#cennik">Cennik</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-primary" href="#cennik"><svg class="ic bell" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2H9.8A2.2 2.2 0 0 0 12 22zm7-6.2V11c0-3.4-1.8-6.2-5-7V3a2 2 0 1 0-4 0v1c-3.2.8-5 3.6-5 7v4.8L3 17.6V19h18v-1.4z"/></svg>Wybierz pakiet</a>
+  </header>
+
+  <section class="hero">
+    <div>
+      <span class="eyebrow hero-anim" style="animation-delay:.05s"><span class="reddot"></span>Kurs online - shorts, algorytm, monetyzacja</span>
+      <h1 class="hero-anim" style="animation-delay:.15s">Zrób <span>viral</span>. Złam algorytm. Zbuduj z tego dochód.</h1>
+      <p class="hero-lead hero-anim" style="animation-delay:.25s">Pokazuję krok po kroku, jak konsekwentnie trafiać w viral na YouTube Shorts, rozumieć czego chce algorytm i zamienić zasięg w realny dochód - nie tylko z AdSense. Dokładnie to, co u mnie zadziałało, poparte zrzutami z YouTube Studio.</p>
+      <div class="hero-ctas hero-anim" style="animation-delay:.35s">
+        <a class="btn btn-primary" href="#cennik"><svg class="ic bell" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2H9.8A2.2 2.2 0 0 0 12 22zm7-6.2V11c0-3.4-1.8-6.2-5-7V3a2 2 0 1 0-4 0v1c-3.2.8-5 3.6-5 7v4.8L3 17.6V19h18v-1.4z"/></svg>Zobacz pakiety</a>
+        <a class="link-play" href="#dowody"><span class="circ"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>Zobacz moje wyniki</a>
+      </div>
+      <p class="stat-line hero-anim" style="animation-delay:.45s">
+        <span class="item"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5C6.5 5 2.7 8.4 1 12c1.7 3.6 5.5 7 11 7s9.3-3.4 11-7c-1.7-3.6-5.5-7-11-7zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg><b>1,7 mld+</b>&nbsp;wyświetleń łącznie</span>
+        <span class="sep">·</span>
+        <span class="item"><svg class="ic" viewBox="0 0 24 24"><path d="M2 21h2v-9H2v9zM23 10.5c0-1-.9-1.5-1.7-1.5H15l1-4.5c.1-.6-.1-1.2-.5-1.6l-.7-.7L8 9.6c-.3.3-.5.7-.5 1.2v8.2c0 .8.7 1.5 1.5 1.5h8.4c.7 0 1.3-.4 1.4-1l1.2-7.5c0-.2.1-.3.1-.5z"/></svg><b>~200 mln</b>&nbsp;polubień</span>
+        <span class="sep">·</span>
+        <span class="item"><svg class="ic" viewBox="0 0 24 24"><path d="M16 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 10c-4.4 0-8 1.8-8 4v2h11v-2c0-1-.4-1.9-1.2-2.7A10 10 0 0 0 8 14zm8 0c-.6 0-1.2 0-1.7.1 1 .9 1.7 2.1 1.7 3.6v2h8v-2c0-2.2-3.6-4-8-4z"/></svg><b>14 kanałów</b>&nbsp;1 mln+ subów</span>
+      </p>
+    </div>
+
+    <div class="hero-anim" style="animation-delay:.2s">
+      <div class="hero-shot">
+        <img src="proof/shot-05.png" alt="YouTube Studio: 8 196 299 wyświetleń od publikacji, +2,7K subskrybentów, 1188,49 dolarów przychodu">
+        <div class="bar"></div>
+      </div>
+      <p class="hero-shot-cap"><svg class="ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>jeden z moich filmów, prosto z panelu twórcy</p>
+    </div>
+  </section>
+
+  <div id="heroSentinel" style="height:1px"></div>
+  <section id="dowody">
+    <div class="proof-head reveal">
+      <span class="eyebrow"><span class="reddot"></span>Prawdziwe dane, prosto z YouTube Studio</span>
+      <h2>To nie przypadek. To się powtarza.</h2>
+      <p>Poniższe liczby to nie jeden szczęśliwy strzał z wirala, który się już nie powtórzy. To wzorzec, który wracał na kilkunastu różnych filmach, na kilku różnych kanałach, w różnych miesiącach - a w sumie na wszystkich moich kontach uzbierało się ponad 1,7 mld wyświetleń, około 200 mln polubień i ponad 35 mln subskrybentów, w tym 14 kanałów z ponad milionem subów i 98 z ponad 100 tysiącami.</p>
+    </div>
+
+    <div class="stats-row reveal">
+      <div class="stat">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M12 5C6.5 5 2.7 8.4 1 12c1.7 3.6 5.5 7 11 7s9.3-3.4 11-7c-1.7-3.6-5.5-7-11-7zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9z"/></svg>Łącznie na wszystkich kontach</div>
+        <div class="val" data-count data-target="1.7" data-decimals="1" data-suffix=" mld+">0 mld+</div>
+        <div class="delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 15l7-7 7 7"/></svg>wyświetleń, wszystkie kanały razem</div>
+      </div>
+      <div class="stat">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M2 21h2v-9H2v9zM23 10.5c0-1-.9-1.5-1.7-1.5H15l1-4.5c.1-.6-.1-1.2-.5-1.6l-.7-.7L8 9.6c-.3.3-.5.7-.5 1.2v8.2c0 .8.7 1.5 1.5 1.5h8.4c.7 0 1.3-.4 1.4-1l1.2-7.5c0-.2.1-.3.1-.5z"/></svg>Łączne polubienia</div>
+        <div class="val" data-count data-target="200" data-decimals="0" data-prefix="~" data-suffix=" mln">~0 mln</div>
+        <div class="delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 15l7-7 7 7"/></svg>na wszystkich filmach</div>
+      </div>
+      <div class="stat">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M12 5C6.5 5 2.7 8.4 1 12c1.7 3.6 5.5 7 11 7s9.3-3.4 11-7c-1.7-3.6-5.5-7-11-7zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9z"/></svg>Subskrybentów łącznie</div>
+        <div class="val" data-count data-target="35" data-decimals="0" data-suffix=" mln+">0 mln+</div>
+        <div class="delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 15l7-7 7 7"/></svg>na wszystkich kanałach razem</div>
+      </div>
+      <div class="stat">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M16 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 10c-4.4 0-8 1.8-8 4v2h11v-2c0-1-.4-1.9-1.2-2.7A10 10 0 0 0 8 14zm8 0c-.6 0-1.2 0-1.7.1 1 .9 1.7 2.1 1.7 3.6v2h8v-2c0-2.2-3.6-4-8-4z"/></svg>Kanały 1&nbsp;mln+ subskrybentów</div>
+        <div class="val" data-count data-target="14" data-decimals="0">0</div>
+        <div class="delta" style="color:var(--muted)">+ 98 kanałów z 100 tys.+ subów</div>
+      </div>
+    </div>
+    <p class="proof-note" style="margin-bottom:36px;">To suma ze wszystkich moich kont i kanałów - nie liczba jednego wybranego filmu. Niżej pokazuję, jak to wygląda z bliska, na przykładzie jednego konkretnego shorta, z realnym zrzutem z panelu twórcy.</p>
+
+    <div class="stats-row cols-3 reveal">
+      <div class="stat">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M12 5C6.5 5 2.7 8.4 1 12c1.7 3.6 5.5 7 11 7s9.3-3.4 11-7c-1.7-3.6-5.5-7-11-7zm0 11.5A4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 0 1 0 9z"/></svg>Zasięg jednego shorta</div>
+        <div class="val" data-count data-target="8.2" data-decimals="1" data-suffix=" mln">0 mln</div>
+        <div class="delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 15l7-7 7 7"/></svg>wyświetleń lifetime</div>
+      </div>
+      <div class="stat">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M16 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 10c-4.4 0-8 1.8-8 4v2h11v-2c0-1-.4-1.9-1.2-2.7A10 10 0 0 0 8 14zm8 0c-.6 0-1.2 0-1.7.1 1 .9 1.7 2.1 1.7 3.6v2h8v-2c0-2.2-3.6-4-8-4z"/></svg>Nowi widzowie</div>
+        <div class="val" data-count data-target="2.7" data-decimals="1" data-prefix="+" data-suffix="K">+0K</div>
+        <div class="delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 15l7-7 7 7"/></svg>subskrybentów z 1 filmu</div>
+      </div>
+      <div class="stat">
+        <div class="lbl"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H5.2L4 17.2z"/></svg>Retencja</div>
+        <div class="val" data-count data-target="105" data-decimals="0" data-suffix="%">0%</div>
+        <div class="delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 15l7-7 7 7"/></svg>śr. % obejrzenia</div>
+      </div>
+    </div>
+    <p class="proof-note">Bez podkręcania liczb - to realne zrzuty z panelu twórcy, nie liczby „od kogoś, kogo znam”.</p>
+
+    <div class="gallery-intro reveal">
+      <h3>Garść zrzutów zamiast obietnic</h3>
+      <p>Mam ich grubo ponad 300 - screeny z każdego filmu, który wystrzelił, z różnych kanałów i różnych walut przychodu. Poniżej kilkanaście z nich, dokładnie tak jak wyglądają w YouTube Studio.</p>
+    </div>
+
+    <div class="gallery reveal">
+      <figure>
+        <div class="thumb"><img src="proof/shot-01.png" alt="YouTube Studio: 2,0 mln wyświetleń w 18 godzin, 105,3% średniego obejrzenia, 22,7K polubień"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>2,0 mln wyświetleń w 18 godzin · 105% retencji</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-02.png" alt="YouTube Studio: 1,5 mln wyświetleń w 16 godzin, 105,7% średniego obejrzenia, 15,2K polubień"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>1,5 mln wyświetleń w 16 godzin · 15,2K polubień</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-03.png" alt="Wydajność shorta: 1466,21 dolarów przychodu lifetime, 5,0 mln zaangażowanych wyświetleń"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>1 466,21 $ przychodu z jednego filmu (lifetime) · 5,0 mln zaangażowanych wyświetleń</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-08.png" alt="Wykres wzrostu: 1,6 mln wyświetleń, +780 subskrybentów, 70,34 euro przychodu"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>1,6 mln wyświetleń · +780 subskrybentów · 70,34 € przychodu - europejski kanał</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-04.png" alt="Wyświetlenia w ostatniej godzinie: 102 492, wykres w czasie rzeczywistym"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>102 492 wyświetlenia w ciągu ostatniej godziny - w czasie rzeczywistym</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-11.png" alt="YouTube Studio: 673 tysiące wyświetleń w 10 godzin, 96% średniego obejrzenia, 9,3K polubień"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>673 tys. wyświetleń w 10 godzin · 96% retencji · 9,3K polubień</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-06.png" alt="Wydajność shorta: 989,51 dolarów przychodu lifetime, 3,3 mln zaangażowanych wyświetleń"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>989,51 $ przychodu, 3,3 mln zaangażowanych wyświetleń - inny film, ten sam wzorzec</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-10.png" alt="Top geografie: Stany Zjednoczone 43,2%, Wielka Brytania 7,2%, Filipiny 5,8%, Kanada 3,7%, Indie 3,3%"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>Zasięg globalny: USA 43% · UK 7% · Filipiny 6% · Kanada i Indie po ~3%</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-07.png" alt="Wyświetlenia w ostatnich 48 godzinach: 1 788 536"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>1 788 536 wyświetleń w 48 godzin od publikacji</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-12.png" alt="Wyświetlenia w ostatnich 48 godzinach: 3 793 005"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>3 793 005 wyświetleń w 48 godzin - kolejny film, ten sam schemat</figcaption>
+      </figure>
+      <figure>
+        <div class="thumb"><img src="proof/shot-09.png" alt="Panel Echtzeit na telefonie: 3 106 109 wyświetleń w 48 godzin"><span class="play-badge"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></div>
+        <figcaption>3 106 109 wyświetleń w 48h - sprawdzone z telefonu, między spotkaniami</figcaption>
+      </figure>
+    </div>
+    <p class="gallery-note">To tylko fragment. Reszta - łącznie z filmami, które NIE wystrzeliły - jest w środku kursu, żeby było widać pełny obraz, a nie same zwycięstwa.</p>
+  </section>
+
+  <section id="program">
+    <div class="curr-head reveal">
+      <span class="eyebrow"><span class="reddot"></span>Program kursu</span>
+      <h2>Trzy filary, jeden system</h2>
+      <p class="lede">Każdy moduł to osobna umiejętność, ale razem działają jako jeden proces: najpierw robisz treść, którą chce pokazywać algorytm, potem konsekwentnie trafiasz w viral, a na końcu zamieniasz to w kilka źródeł dochodu naraz.</p>
+    </div>
+    <div class="modules reveal">
+      <div class="module">
+        <div class="num">01</div>
+        <div>
+          <h3>Wiral - jak trafić, nie zgadywać</h3>
+          <div class="meta"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>5 lekcji wideo</div>
+          <ul>
+            <li><span class="lno">1.1</span>Hook w 2 sekundy - 7 sprawdzonych wzorców otwarcia</li>
+            <li><span class="lno">1.2</span>Anatomia scenariusza, który ogląda się do końca</li>
+            <li><span class="lno">1.3</span>Montaż pod pętlę: tempo, długość, cięcia</li>
+            <li><span class="lno">1.4</span>Dlaczego 100%+ retencji to sygnał dla algorytmu - i jak go wywołać</li>
+            <li><span class="lno">1.5</span>Rozbiórka 5 moich najlepszych shortów, klatka po klatce</li>
+          </ul>
+        </div>
+      </div>
+      <div class="module">
+        <div class="num">02</div>
+        <div>
+          <h3>Algorytm - i wybór niszy</h3>
+          <div class="meta"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>5 lekcji wideo</div>
+          <ul>
+            <li><span class="lno">2.1</span>Co naprawdę ocenia algorytm Shorts - dane, nie mity</li>
+            <li><span class="lno">2.2</span>4 kryteria wyboru niszy, zanim nagrasz pierwszy film</li>
+            <li><span class="lno">2.3</span>Jak przetestować temat małym kosztem, zanim zainwestujesz miesiące</li>
+            <li><span class="lno">2.4</span>Kiedy pivotować, a kiedy trzymać kurs</li>
+            <li><span class="lno">2.5</span>Checklista walidacji tematu przed publikacją</li>
+          </ul>
+        </div>
+      </div>
+      <div class="module">
+        <div class="num">03</div>
+        <div>
+          <h3>Monetyzacja - poza AdSense</h3>
+          <div class="meta"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>5 lekcji wideo</div>
+          <ul>
+            <li><span class="lno">3.1</span>Ile realnie płaci AdSense z Shorts - i dlaczego to nie fundament</li>
+            <li><span class="lno">3.2</span>Pierwsza współpraca sponsorowana bez dużej społeczności</li>
+            <li><span class="lno">3.3</span>Afiliacja: jak dobrać produkty pod niszę Shorts</li>
+            <li><span class="lno">3.4</span>Budowa własnego produktu z ruchu na Shortsach</li>
+            <li><span class="lno">3.5</span>Lejek: jak kierować widzów Shorts do długiego formatu</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="honesty reveal">
+      <div class="honesty-stat">
+        <div class="val mono">0,30 $</div>
+        <div class="lbl">RPM za 1000 zaangażowanych wyświetleń na Shorts - standard całej platformy</div>
+      </div>
+      <div>
+        <span class="eyebrow"><span class="reddot"></span>Szczerość zamiast hype'u</span>
+        <h2 style="margin-top:14px;">Dlaczego większość kursów o zarabianiu na Shorts mija się z prawdą</h2>
+        <p>Sam ad revenue z reklam pod Shortsami jest niski - to standard całej platformy, nie coś, co ja albo ktokolwiek inny „odkrył”. Jeśli kurs obiecuje Ci fortunę z samych reklam pod Shortsami, obiecuje coś, czego dane nie potwierdzają.</p>
+        <p>Dlatego uczę zasięgu i algorytmu jako fundamentu, a monetyzacji jako czegoś, co budujesz z kilku źródeł naraz - sponsoring, afiliacja, własne produkty, długi format - a nie jednego cudownego przycisku <strong>„włącz reklamy”</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="whom-intro reveal">
+      <span class="eyebrow"><span class="reddot"></span>Dla kogo to jest</span>
+      <h2 style="margin-top:10px;">Sprawdź, zanim zapłacisz</h2>
+      <p>Ten kurs nie jest dla każdego - i wolę powiedzieć to wprost, zamiast sprzedać go wszystkim, a potem tłumaczyć się z braku efektów.</p>
+    </div>
+    <div class="whom reveal">
+      <div class="col yes">
+        <h3>To jest dla Ciebie, jeśli:</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Dopiero zaczynasz i nie wiesz, od czego zacząć</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Masz kanał, który od miesięcy stoi w miejscu</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Chcesz zbudować dochód uboczny z contentu</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Wolisz proces do powtarzania niż jednorazowy gotowiec</li>
+        </ul>
+      </div>
+      <div class="col no">
+        <h3>Niekoniecznie, jeśli:</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6z"/></svg>Szukasz gotowca na „milion złotych w miesiąc”</li>
+          <li><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6z"/></svg>Nie jesteś gotowy nagrywać regularnie</li>
+          <li><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6z"/></svg>Oczekujesz wyników bez żadnej pracy</li>
+          <li><svg viewBox="0 0 24 24"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6z"/></svg>Liczysz wyłącznie na przychód z AdSense</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="about reveal">
+    <div>
+      <span class="eyebrow"><span class="reddot"></span>Kto to prowadzi</span>
+    </div>
+    <div>
+      <blockquote>
+        <span class="qtext">Sam rozwijam dziesiątki kanałów na Shorts - 14 z nich przekroczyło milion subskrybentów, prawie sto kolejnych przebiło 100 tysięcy, a łączna liczba wyświetleń na wszystkich kontach zbliża się do 2 miliardów. Nie sprzedaję teorii z internetu. Pokazuję dokładnie to, co u mnie zadziałało - łącznie z liczbami, które inni zwykle chowają.</span>
+        <cite>- Twórca Shortowni</cite>
+      </blockquote>
+      <p>Zrzuty w tym materiale to mały ułamek tego, co mam - realnie mam ich grubo ponad 300, z dziesiątek różnych kanałów, zbieranych przez ostatni rok, film po filmie - momenty, kiedy coś wystrzeliło, ale też te, kiedy nic się nie działo. Ten kurs to nie jeden dobry miesiąc opisany jako metoda - to proces, który powtarzałem na tylu kanałach i tylu filmach, że mam pewność, że da się go nauczyć, a nie tylko opowiedzieć.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="honesty reveal">
+      <div class="honesty-stat">
+        <div class="val mono">2×</div>
+        <div class="lbl">próg wejścia do programu partnerskiego od 1 lutego 2027</div>
+      </div>
+      <div>
+        <span class="eyebrow"><span class="reddot"></span>Zanim zasady się zmienią</span>
+        <h2 style="margin-top:14px;">Monetyzację lepiej wbić teraz, niż za rok</h2>
+        <p>To nie plotka, tylko oficjalna zapowiedź YouTube: od 1 lutego 2027 próg wejścia do programu partnerskiego się podwaja. Zamiast 4 000 godzin oglądania w 12 miesięcy (albo 10 mln wyświetleń Shortsów w 90 dni) trzeba będzie mieć <strong>8 000 godzin</strong> (albo <strong>20 mln wyświetleń Shortsów</strong> w 90 dni) - liczba wymaganych subskrybentów zostaje bez zmian, na poziomie 1 000.</p>
+        <p>Kanały, które włączą monetyzację przed tą datą, zachowują status na starych, niższych zasadach - nie trzeba się kwalifikować od nowa, gdy próg wzrośnie. Wystarczy potwierdzić nowy regulamin do 31 stycznia 2027 i utrzymać minimalną aktywność. Im później zaczniesz, tym wyższą poprzeczkę będziesz musiał przeskoczyć, żeby w ogóle wystartować.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="cennik">
+    <div class="price-head reveal">
+      <span class="eyebrow"><span class="reddot"></span>Oferta</span>
+      <h2 style="margin-top:10px;">Trzy sposoby na start</h2>
+      <p>Zacznij tam, gdzie jest Ci wygodnie - od taniego ebooka na jeden wieczór, przez pełny kurs wideo, po stały dostęp do nisz, które sprawdzam na bieżąco.</p>
+    </div>
+
+    <div class="offer-group reveal"><span class="offer-num">01</span><h3>Ebook - szybki, tani start</h3></div>
+    <div class="pricing-grid cols-1 wide reveal" style="margin-bottom:56px;">
+      <div class="price-card">
+        <div class="ebook-card">
+          <div class="ebook-cover" aria-hidden="true">
+            <div class="brandmark"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Shortownia</div>
+            <div class="cover-title">Hook<br>w 2 sekundy</div>
+            <div class="cover-tag">Ebook · PDF</div>
+          </div>
+          <div>
+            <div class="price-tier-lbl">Wyciąg z systemu Shortownia</div>
+            <h3>Hook w 2 sekundy</h3>
+            <div class="price-num mono">37 zł</div>
+            <div class="price-sub">jednorazowo · PDF, dostęp od razu</div>
+            <ul class="price-list">
+              <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>7 sprawdzonych wzorców otwarcia, które sam testowałem na realnych Shortsach</li>
+              <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Dlaczego pierwsze 2 sekundy decydują o całej retencji filmu</li>
+              <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Checklista: sprawdź hook przed publikacją w 60 sekund</li>
+            </ul>
+            <a class="btn btn-outline" href="https://buy.stripe.com/00w6oGeST91o3imgOqdQQ00" target="_blank" rel="noopener">Kupuję ebook</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="offer-group reveal"><span class="offer-num">02</span><h3>Kurs Shortownia - pełny system wideo</h3></div>
+    <div class="pricing-grid reveal">
+      <div class="price-card">
+        <div class="price-tier-lbl">&nbsp;</div>
+        <h3>Podstawa</h3>
+        <div class="price-num mono">97 zł</div>
+        <div class="price-sub">jednorazowo · dożywotni dostęp</div>
+        <ul class="price-list">
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>3 moduły wideo: wiral, algorytm, monetyzacja</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Dostęp dożywotni do materiałów</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Grupa wsparcia na Discordzie</li>
+        </ul>
+        <a class="btn btn-outline" href="https://buy.stripe.com/5kQ9AS8uva5s3im9lYdQQ01" target="_blank" rel="noopener">Wybieram Podstawę</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tier-lbl">★ Najczęściej wybierany</div>
+        <h3>Standard</h3>
+        <div class="price-num mono">197 zł</div>
+        <div class="price-sub">jednorazowo · dożywotni dostęp</div>
+        <ul class="price-list">
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Wszystko z pakietu Podstawa</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Szablon do planowania i testowania tematów</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Checklista walidacji niszy przed startem</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Dostęp do przyszłych aktualizacji kursu</li>
+        </ul>
+        <a class="btn btn-primary" href="https://buy.stripe.com/fZu4gy7qr1yWg58fKmdQQ02" target="_blank" rel="noopener"><svg class="ic bell" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2H9.8A2.2 2.2 0 0 0 12 22zm7-6.2V11c0-3.4-1.8-6.2-5-7V3a2 2 0 1 0-4 0v1c-3.2.8-5 3.6-5 7v4.8L3 17.6V19h18v-1.4z"/></svg>Wybieram Standard</a>
+      </div>
+      <div class="price-card">
+        <div class="price-tier-lbl">&nbsp;</div>
+        <h3>Pro</h3>
+        <div class="price-num mono">397 zł</div>
+        <div class="price-sub">jednorazowo · dożywotni dostęp</div>
+        <ul class="price-list">
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Wszystko z pakietu Standard</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Indywidualny feedback do 3 Twoich filmów</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Live Q&A raz w miesiącu</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Priorytetowe odpowiedzi w grupie</li>
+        </ul>
+        <a class="btn btn-outline" href="https://buy.stripe.com/7sY28q6mn3H41ae0PsdQQ03" target="_blank" rel="noopener">Wybieram Pro</a>
+      </div>
+    </div>
+    <p class="price-fine" style="margin-bottom:56px;">Bezpieczna płatność · dostęp od razu po zakupie · możesz zacząć od Podstawy i dokupić więcej później.</p>
+
+    <div class="offer-group reveal"><span class="offer-num">03</span><h3>Grupka Insiderów - nisze na bieżąco</h3></div>
+    <div class="pricing-grid cols-1 reveal">
+      <div class="price-card featured">
+        <div class="price-tier-lbl">🔒 Tylko 100 miejsc</div>
+        <h3>Dostęp miesięczny</h3>
+        <div class="price-num mono">99 zł<span style="font-size:1rem;font-weight:700;color:var(--muted);">&nbsp;/ mies.</span></div>
+        <div class="price-sub">albo <a href="#" data-checkout-plan="price_1UFtERCYqOnrJwGYa3JfeYVM" style="color:inherit;text-decoration:underline;">790 zł / rok (ok. 66 zł mies.)</a> · rezygnacja w każdej chwili</div>
+        <ul class="price-list">
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Co tydzień nowa, sprawdzona nisza z realnym potencjałem</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Gotowe briefy i przykłady, nie tylko sama nazwa niszy</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Priorytetowe pytania i live'y ze mną</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Maksymalnie 100 osób w grupie naraz</li>
+        </ul>
+        <a class="btn btn-primary" href="#" data-checkout-plan="price_1UFtEHCYqOnrJwGYZJoDLb5a">Dołączam do grupy</a>
+      </div>
+    </div>
+    <p class="price-fine">Grupa celowo ograniczona do 100 miejsc - nie po to, żeby straszyć odliczaniem, tylko żebym realnie nadążał odpowiadać i wrzucać nisze, zanim zrobi to za mnie internet.</p>
+
+    <div class="trust-row reveal">
+      <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>Płatność szyfrowana SSL</span>
+      <span><svg class="ic" viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM4 8V6h16v2zm0 2h16v8H4z"/></svg>Karta, BLIK, przelew</span>
+      <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6z"/></svg>Dostęp od razu po zakupie</span>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="faq-head reveal">
+      <span class="eyebrow"><span class="reddot"></span>Pytania</span>
+      <h2 style="margin-top:10px;">FAQ</h2>
+    </div>
+    <div class="reveal">
+    <details>
+      <summary>Czy to zadziała w mojej niszy?<span class="chev"></span></summary>
+      <p>Uczę zasad rządzących algorytmem i retencją, nie jednej sztywnej formatki - dlatego metoda przenosi się między niszami, chociaż konkretne tematy trzeba dopasować i przetestować samodzielnie.</p>
+    </details>
+    <details>
+      <summary>Czym różnią się pakiety?<span class="chev"></span></summary>
+      <p>Podstawa to sama wiedza z trzech modułów. Standard dokłada narzędzia do planowania i testowania treści. Pro dodaje indywidualny feedback do Twoich filmów i regularne Q&A na żywo.</p>
+    </details>
+    <details>
+      <summary>Ile czasu zajmie zobaczenie efektów?<span class="chev"></span></summary>
+      <p>Różnie - zależy od niszy i regularności publikacji. Kurs pokazuje jak testować szybciej i taniej, ale nie obiecuję konkretnego terminu wirala.</p>
+    </details>
+    <details>
+      <summary>Czy potrzebuję sprzętu albo doświadczenia w montażu?<span class="chev"></span></summary>
+      <p>Nie. Na start wystarczy telefon - w kursie pokazuję dokładnie z czego sam korzystam.</p>
+    </details>
+    <details>
+      <summary>Czy metoda działa mimo zmian algorytmu w 2026?<span class="chev"></span></summary>
+      <p>Uczę zasad (hook, retencja, sygnały jakości), a nie chwilowych sztuczek - dlatego dezaktualizuje się wolniej niż poradniki oparte na jednej sztuczce.</p>
+    </details>
+    </div>
+  </section>
+
+  <footer>
+    <div class="brand"><span class="avatar"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>Shortownia</div>
+    <p class="fine">Wyniki indywidualne mogą się różnić. Zrzuty ekranu i liczby pochodzą z rzeczywistych statystyk kanałów autora.</p>
+  </footer>
+</div>
+
+<div class="sticky-cta" id="stickyCta">
+  <div class="price">Shortownia<small>już od 97 zł</small></div>
+  <a class="btn btn-primary" href="#cennik"><svg class="ic bell" viewBox="0 0 24 24" fill="#fff"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2H9.8A2.2 2.2 0 0 0 12 22zm7-6.2V11c0-3.4-1.8-6.2-5-7V3a2 2 0 1 0-4 0v1c-3.2.8-5 3.6-5 7v4.8L3 17.6V19h18v-1.4z"/></svg>Wybierz pakiet</a>
+</div>
+
+<script>
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // scroll reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !reduceMotion){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('is-visible'); io.unobserve(e.target); }
+      });
+    }, { threshold:.12 });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  // count-up numbers
+  function formatNum(n, decimals){
+    return n.toFixed(decimals).replace('.', ',');
+  }
+  function animateCount(el){
+    var target = parseFloat(el.getAttribute('data-target'));
+    var decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+    var prefix = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+    if(reduceMotion){ el.textContent = prefix + formatNum(target, decimals) + suffix; return; }
+    var start = null, dur = 1100;
+    function step(ts){
+      if(!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = prefix + formatNum(target * eased, decimals) + suffix;
+      if(p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var counters = document.querySelectorAll('[data-count]');
+  if('IntersectionObserver' in window){
+    var cio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ animateCount(e.target); cio.unobserve(e.target); }
+      });
+    }, { threshold:.4 });
+    counters.forEach(function(el){ cio.observe(el); });
+  } else {
+    counters.forEach(animateCount);
+  }
+
+  // smooth anchor scrolling
+  try{ document.documentElement.style.scrollBehavior = reduceMotion ? 'auto' : 'smooth'; }catch(e){}
+
+  // mobile sticky CTA: show past hero, hide once pricing section is in view
+  var stickyCta = document.getElementById('stickyCta');
+  var heroSentinel = document.getElementById('heroSentinel');
+  var pricing = document.getElementById('cennik');
+  if(stickyCta && heroSentinel && pricing && 'IntersectionObserver' in window){
+    var pastHero = false, atPricing = false;
+    function refreshSticky(){ stickyCta.classList.toggle('show', pastHero && !atPricing); }
+    new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ pastHero = !e.isIntersecting && e.boundingClientRect.top < 0; refreshSticky(); });
+    }, { threshold:0 }).observe(heroSentinel);
+    new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ atPricing = e.isIntersecting; refreshSticky(); });
+    }, { threshold:0.15 }).observe(pricing);
+  }
+})();
+</script>
+
+<!-- ===== Checkout: Grupka Insiderów (embedded Stripe Elements) ===== -->
+<style>
+  .checkout-overlay{ position:fixed; inset:0; background:rgba(10,10,14,.72); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; }
+  .checkout-overlay.open{ display:flex; }
+  .checkout-box{ background:#12121a; color:#fff; border:1px solid rgba(255,255,255,.12); border-radius:16px; max-width:440px; width:100%; padding:28px; max-height:90vh; overflow-y:auto; position:relative; }
+  .checkout-close{ position:absolute; top:14px; right:14px; background:none; border:none; color:inherit; opacity:.6; font-size:1.4rem; line-height:1; cursor:pointer; padding:4px; }
+  .checkout-close:hover{ opacity:1; }
+  .checkout-box h3{ margin:0 0 4px; font-size:1.3rem; color:#fff; }
+  .checkout-box .sub{ color:#9a9aa5; font-size:.9rem; margin-bottom:20px; }
+  .plan-picker{ display:grid; gap:10px; margin-bottom:20px; }
+  .plan-opt{ display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(255,255,255,.14); border-radius:10px; padding:12px 14px; cursor:pointer; transition:border-color .15s, background .15s; }
+  .plan-opt:hover{ border-color:rgba(255,255,255,.3); }
+  .plan-opt.active{ border-color:#e63946; background:rgba(230,57,70,.1); }
+  .plan-opt input{ accent-color:#e63946; margin:0; }
+  .plan-opt .pl{ display:flex; align-items:center; gap:10px; font-weight:600; color:#fff; }
+  .plan-opt .pp{ font-weight:700; font-variant-numeric:tabular-nums; color:#fff; }
+  .plan-opt .badge{ font-size:.68rem; background:#e63946; color:#fff; padding:2px 7px; border-radius:999px; margin-left:8px; font-weight:700; }
+  .checkout-box label.field{ display:block; font-size:.82rem; margin-bottom:6px; color:#9a9aa5; }
+  .checkout-box input[type=email]{ width:100%; box-sizing:border-box; padding:11px 13px; border-radius:9px; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.05); color:#fff; font-size:.95rem; margin-bottom:18px; }
+  #payment-element{ margin-bottom:16px; }
+  .checkout-submit{ width:100%; padding:13px; border-radius:10px; border:none; background:#e63946; color:#fff; font-weight:700; font-size:1rem; cursor:pointer; }
+  .checkout-submit:disabled{ opacity:.6; cursor:not-allowed; }
+  .checkout-msg{ font-size:.85rem; margin-top:12px; text-align:center; min-height:1.2em; }
+  .checkout-msg.err{ color:#ff6b6b; }
+  .checkout-msg.ok{ color:#4ade80; }
+  .checkout-lock{ font-size:.75rem; color:#9a9aa5; text-align:center; margin-top:14px; }
+</style>
+
+<div class="checkout-overlay" id="checkoutOverlay">
+  <div class="checkout-box">
+    <button type="button" class="checkout-close" id="checkoutClose" aria-label="Zamknij">&#10005;</button>
+    <h3>Grupka Insiderów</h3>
+    <div class="sub">Wybierz plan i dołącz - płatność kartą, bezpiecznie przez Stripe.</div>
+
+    <div class="plan-picker" id="planPicker">
+      <label class="plan-opt" data-plan="month">
+        <span class="pl"><input type="radio" name="plan" value="price_1UFtEHCYqOnrJwGYZJoDLb5a"> Miesiąc</span>
+        <span class="pp">99 zł</span>
+      </label>
+      <label class="plan-opt active" data-plan="quarter">
+        <span class="pl"><input type="radio" name="plan" value="price_1UFtNECYqOnrJwGYlxPIBbC9" checked> 3 miesiące</span>
+        <span class="pp">267 zł</span>
+      </label>
+      <label class="plan-opt" data-plan="year">
+        <span class="pl"><input type="radio" name="plan" value="price_1UFtERCYqOnrJwGYa3JfeYVM"> Rok<span class="badge">-34%</span></span>
+        <span class="pp">790 zł</span>
+      </label>
+    </div>
+
+    <label class="field" for="checkoutEmail">Adres e-mail (na niego wyślemy dostęp)</label>
+    <input type="email" id="checkoutEmail" placeholder="ty@przyklad.pl" autocomplete="email" required>
+
+    <div id="payment-element"></div>
+
+    <button type="button" class="checkout-submit" id="checkoutSubmit">Przejdź do płatności</button>
+    <div class="checkout-msg" id="checkoutMsg"></div>
+    <div class="checkout-lock">🔒 Płatność szyfrowana SSL, obsługiwana przez Stripe</div>
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+(function(){
+  var STRIPE_PUBLISHABLE_KEY = "pk_live_REPLACE_ME"; // <-- wklej swój publiczny klucz Stripe (Developers -> API keys -> Publishable key)
+  var stripe = null;
+  try { if(window.Stripe) stripe = Stripe(STRIPE_PUBLISHABLE_KEY); } catch(e){}
+
+  var overlay = document.getElementById('checkoutOverlay');
+  var closeBtn = document.getElementById('checkoutClose');
+  var picker = document.getElementById('planPicker');
+  var emailInput = document.getElementById('checkoutEmail');
+  var submitBtn = document.getElementById('checkoutSubmit');
+  var msgEl = document.getElementById('checkoutMsg');
+  var elements = null, currentClientSecret = null;
+
+  function setActivePlan(priceId){
+    var radio = picker.querySelector('input[value="'+priceId+'"]');
+    if(!radio) return;
+    radio.checked = true;
+    picker.querySelectorAll('.plan-opt').forEach(function(o){ o.classList.remove('active'); });
+    radio.closest('.plan-opt').classList.add('active');
+  }
+
+  function openModal(defaultPriceId){
+    if(defaultPriceId) setActivePlan(defaultPriceId);
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(); });
+
+  picker.querySelectorAll('.plan-opt').forEach(function(opt){
+    opt.addEventListener('click', function(){
+      picker.querySelectorAll('.plan-opt').forEach(function(o){ o.classList.remove('active'); });
+      opt.classList.add('active');
+      opt.querySelector('input').checked = true;
+    });
+  });
+
+  document.querySelectorAll('[data-checkout-plan]').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      openModal(btn.getAttribute('data-checkout-plan') || null);
+    });
+  });
+
+  function setMsg(text, kind){
+    msgEl.textContent = text || '';
+    msgEl.className = 'checkout-msg' + (kind ? ' ' + kind : '');
+  }
+
+  submitBtn.addEventListener('click', async function(){
+    var email = emailInput.value.trim();
+    var checkedInput = picker.querySelector('input[name=plan]:checked');
+    var priceId = checkedInput ? checkedInput.value : null;
+
+    if(!email || email.indexOf('@') === -1){
+      setMsg('Podaj poprawny adres e-mail.', 'err');
+      return;
+    }
+    if(!stripe){
+      setMsg('Płatność jest chwilowo niedostępna. Spróbuj odświeżyć stronę.', 'err');
+      return;
+    }
+
+    submitBtn.disabled = true;
+
+    try{
+      if(!currentClientSecret){
+        setMsg('Przygotowuję płatność...', '');
+        var res = await fetch('/api/create-subscription', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ priceId: priceId, email: email })
+        });
+        var data = await res.json();
+        if(!res.ok){ throw new Error(data.error || 'Nie udało się utworzyć płatności.'); }
+
+        currentClientSecret = data.clientSecret;
+        elements = stripe.elements({ clientSecret: currentClientSecret, appearance: { theme: 'night' } });
+        var paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+        picker.querySelectorAll('input').forEach(function(i){ i.disabled = true; });
+        emailInput.disabled = true;
+        setMsg('', '');
+        submitBtn.textContent = 'Zapłać';
+        submitBtn.disabled = false;
+        return;
+      }
+
+      setMsg('Przetwarzam płatność...', '');
+      var result = await stripe.confirmPayment({
+        elements: elements,
+        confirmParams: { return_url: window.location.href.split('?')[0] + '?payment=success' }
+      });
+      if(result.error){
+        setMsg(result.error.message || 'Płatność nie powiodła się.', 'err');
+        submitBtn.disabled = false;
+      }
+    }catch(err){
+      setMsg(err.message || 'Coś poszło nie tak.', 'err');
+      submitBtn.disabled = false;
+    }
+  });
+
+  if(window.location.search.indexOf('payment=success') !== -1){
+    document.addEventListener('DOMContentLoaded', function(){
+      openModal();
+      setMsg('Dziękujemy! Płatność przyjęta - dostęp do grupy wyślemy na maila w ciągu kilku minut.', 'ok');
+      submitBtn.style.display = 'none';
+      picker.style.display = 'none';
+      emailInput.style.display = 'none';
+      var lbl = document.querySelector('label[for=checkoutEmail]');
+      if(lbl) lbl.style.display = 'none';
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
