@@ -752,37 +752,48 @@
 
 <!-- ===== Checkout: Grupka Insiderów (embedded Stripe Elements) ===== -->
 <style>
-  .checkout-overlay{ position:fixed; inset:0; background:rgba(10,10,14,.72); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; }
+  @keyframes checkoutFadeIn{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes checkoutPopIn{ from{ opacity:0; transform:translateY(14px) scale(.97); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  .checkout-overlay{ position:fixed; inset:0; background:rgba(10,10,10,.55); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; animation:checkoutFadeIn .18s ease; }
   .checkout-overlay.open{ display:flex; }
-  .checkout-box{ background:#12121a; color:#fff; border:1px solid rgba(255,255,255,.12); border-radius:16px; max-width:440px; width:100%; padding:28px; max-height:90vh; overflow-y:auto; position:relative; }
-  .checkout-close{ position:absolute; top:14px; right:14px; background:none; border:none; color:inherit; opacity:.6; font-size:1.4rem; line-height:1; cursor:pointer; padding:4px; }
-  .checkout-close:hover{ opacity:1; }
-  .checkout-box h3{ margin:0 0 4px; font-size:1.3rem; color:#fff; }
-  .checkout-box .sub{ color:#9a9aa5; font-size:.9rem; margin-bottom:20px; }
+  .checkout-box{ position:relative; background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:20px; max-width:440px; width:100%; padding:34px 30px 28px; max-height:90vh; overflow-y:auto; box-shadow:0 30px 70px -24px var(--shadow); animation:checkoutPopIn .22s cubic-bezier(.2,.8,.3,1); }
+  .checkout-box::before{ content:''; position:absolute; top:0; left:20px; right:20px; height:4px; border-radius:0 0 6px 6px; background:var(--red); }
+  .checkout-close{ position:absolute; top:16px; right:16px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--line); border-radius:50%; color:var(--muted); font-size:1.1rem; line-height:1; cursor:pointer; transition:color .15s ease, border-color .15s ease; }
+  .checkout-close:hover{ color:var(--ink); border-color:var(--red); }
+  .checkout-eyebrow{ font-size:.74rem; letter-spacing:.05em; text-transform:uppercase; color:var(--red-text); font-weight:700; display:inline-flex; align-items:center; gap:6px; margin-bottom:10px; }
+  .checkout-eyebrow .reddot{ width:7px; height:7px; border-radius:50%; background:var(--red); flex-shrink:0; }
+  .checkout-box h3{ margin:0 0 4px; font-size:1.4rem; color:var(--ink); }
+  .checkout-box .sub{ color:var(--muted); font-size:.88rem; margin-bottom:22px; line-height:1.5; }
   .plan-picker{ display:grid; gap:10px; margin-bottom:20px; }
-  .plan-opt{ display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid rgba(255,255,255,.14); border-radius:10px; padding:12px 14px; cursor:pointer; transition:border-color .15s, background .15s; }
-  .plan-opt:hover{ border-color:rgba(255,255,255,.3); }
-  .plan-opt.active{ border-color:#e63946; background:rgba(230,57,70,.1); }
-  .plan-opt input{ accent-color:#e63946; margin:0; }
-  .plan-opt .pl{ display:flex; align-items:center; gap:10px; font-weight:600; color:#fff; }
-  .plan-opt .pp{ font-weight:700; font-variant-numeric:tabular-nums; color:#fff; }
-  .plan-opt .badge{ font-size:.68rem; background:#e63946; color:#fff; padding:2px 7px; border-radius:999px; margin-left:8px; font-weight:700; }
-  .checkout-box label.field{ display:block; font-size:.82rem; margin-bottom:6px; color:#9a9aa5; }
-  .checkout-box input[type=email]{ width:100%; box-sizing:border-box; padding:11px 13px; border-radius:9px; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.05); color:#fff; font-size:.95rem; margin-bottom:18px; }
-  #payment-element{ margin-bottom:16px; }
-  .checkout-submit{ width:100%; padding:13px; border-radius:10px; border:none; background:#e63946; color:#fff; font-weight:700; font-size:1rem; cursor:pointer; }
-  .checkout-submit:disabled{ opacity:.6; cursor:not-allowed; }
-  .checkout-msg{ font-size:.85rem; margin-top:12px; text-align:center; min-height:1.2em; }
-  .checkout-msg.err{ color:#ff6b6b; }
-  .checkout-msg.ok{ color:#4ade80; }
-  .checkout-lock{ font-size:.75rem; color:#9a9aa5; text-align:center; margin-top:14px; }
+  .plan-opt{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; border:1.5px solid var(--line); border-radius:12px; padding:13px 16px; cursor:pointer; transition:border-color .15s ease, background .15s ease; background:var(--surface); }
+  .plan-opt:hover{ border-color:var(--red-text); }
+  .plan-opt.active{ border-color:var(--red); background:color-mix(in srgb, var(--red) 7%, var(--surface)); }
+  .plan-opt input{ accent-color:var(--red); margin:0; width:16px; height:16px; flex-shrink:0; }
+  .plan-opt .pl{ display:flex; align-items:center; gap:10px; font-weight:600; color:var(--ink); font-size:.95rem; }
+  .plan-opt .pp{ font-family:'Roboto Mono',monospace; font-weight:700; color:var(--ink); text-align:right; }
+  .plan-opt .pp .sub-permies{ display:block; font-family:'Roboto',sans-serif; font-weight:500; font-size:.72rem; color:var(--muted); margin-top:1px; }
+  .plan-opt .badge{ font-size:.65rem; background:var(--red); color:var(--on-red); padding:2px 7px; border-radius:999px; margin-left:8px; font-weight:700; letter-spacing:.02em; vertical-align:1px; }
+  .checkout-box label.field{ display:block; font-size:.82rem; margin-bottom:7px; color:var(--muted); font-weight:600; }
+  .checkout-box input[type=email]{ width:100%; box-sizing:border-box; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:.95rem; margin-bottom:18px; font-family:'Roboto',sans-serif; transition:border-color .15s ease; }
+  .checkout-box input[type=email]:focus{ border-color:var(--red); }
+  #payment-element{ margin-bottom:6px; min-height:2px; }
+  #payment-element:not(:empty){ padding:14px; border:1.5px solid var(--line); border-radius:10px; background:var(--surface); margin-bottom:18px; }
+  .checkout-submit-btn{ width:100%; justify-content:center; font-size:1rem; padding:14px 22px; }
+  .checkout-submit-btn:disabled{ opacity:.6; cursor:not-allowed; }
+  .checkout-msg{ font-size:.85rem; margin-top:12px; text-align:center; min-height:1.2em; font-weight:600; }
+  .checkout-msg.err{ color:#e5484d; }
+  .checkout-msg.ok{ color:var(--growth); }
+  .checkout-trust{ display:flex; flex-wrap:wrap; gap:14px; margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
+  .checkout-trust span{ display:flex; align-items:center; gap:6px; font-size:.74rem; color:var(--muted); }
+  .checkout-trust svg{ width:14px; height:14px; fill:var(--muted); flex-shrink:0; }
 </style>
 
 <div class="checkout-overlay" id="checkoutOverlay">
   <div class="checkout-box">
     <button type="button" class="checkout-close" id="checkoutClose" aria-label="Zamknij">&#10005;</button>
+    <span class="checkout-eyebrow"><span class="reddot"></span>Bezpieczna płatność</span>
     <h3>Grupka Insiderów</h3>
-    <div class="sub">Wybierz plan i dołącz - płatność kartą, bezpiecznie przez Stripe.</div>
+    <div class="sub">Wybierz plan i dołącz - płatność obsługuje Stripe, ten sam system co Amazon czy Booking.com.</div>
 
     <div class="plan-picker" id="planPicker">
       <label class="plan-opt" data-plan="month">
@@ -790,12 +801,12 @@
         <span class="pp">99 zł</span>
       </label>
       <label class="plan-opt active" data-plan="quarter">
-        <span class="pl"><input type="radio" name="plan" value="price_1UFtNECYqOnrJwGYlxPIBbC9" checked> 3 miesiące</span>
-        <span class="pp">267 zł</span>
+        <span class="pl"><input type="radio" name="plan" value="price_1UFtNECYqOnrJwGYlxPIBbC9" checked> 3 miesiące<span class="badge">Popularne</span></span>
+        <span class="pp">267 zł<span class="sub-permies">89 zł / mies.</span></span>
       </label>
       <label class="plan-opt" data-plan="year">
         <span class="pl"><input type="radio" name="plan" value="price_1UFtERCYqOnrJwGYa3JfeYVM"> Rok<span class="badge">-34%</span></span>
-        <span class="pp">790 zł</span>
+        <span class="pp">790 zł<span class="sub-permies">66 zł / mies.</span></span>
       </label>
     </div>
 
@@ -804,16 +815,20 @@
 
     <div id="payment-element"></div>
 
-    <button type="button" class="checkout-submit" id="checkoutSubmit">Przejdź do płatności</button>
+    <button type="button" class="btn btn-primary checkout-submit-btn" id="checkoutSubmit">Przejdź do płatności</button>
     <div class="checkout-msg" id="checkoutMsg"></div>
-    <div class="checkout-lock">🔒 Płatność szyfrowana SSL, obsługiwana przez Stripe</div>
+    <div class="checkout-trust">
+      <span><svg viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>Szyfrowanie SSL</span>
+      <span><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM4 8V6h16v2zm0 2h16v8H4z"/></svg>Karta, BLIK, przelew</span>
+      <span><svg viewBox="0 0 24 24"><path d="M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6z"/></svg>Obsługa: Stripe</span>
+    </div>
   </div>
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 (function(){
-  var STRIPE_PUBLISHABLE_KEY = "pk_live_REPLACE_ME"; // <-- wklej swój publiczny klucz Stripe (Developers -> API keys -> Publishable key)
+  var STRIPE_PUBLISHABLE_KEY = "pk_live_51UFspuCYqOnrJwGYeVOvg6CP6hzeJ2AKPXFv1MbsjieNYTNatE1YjNvkalih7Jpd8paFfkailspcBsehVhdik9QB00DR7gbuoT";
   var stripe = null;
   try { if(window.Stripe) stripe = Stripe(STRIPE_PUBLISHABLE_KEY); } catch(e){}
 
@@ -893,7 +908,19 @@
         if(!res.ok){ throw new Error(data.error || 'Nie udało się utworzyć płatności.'); }
 
         currentClientSecret = data.clientSecret;
-        elements = stripe.elements({ clientSecret: currentClientSecret, appearance: { theme: 'night' } });
+        var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.getAttribute('data-theme') !== 'light';
+        if(document.documentElement.getAttribute('data-theme') === 'dark') isDark = true;
+        elements = stripe.elements({
+          clientSecret: currentClientSecret,
+          appearance: {
+            theme: isDark ? 'night' : 'stripe',
+            variables: {
+              colorPrimary: '#FF0000',
+              borderRadius: '10px',
+              fontFamily: "Roboto, sans-serif"
+            }
+          }
+        });
         var paymentElement = elements.create('payment');
         paymentElement.mount('#payment-element');
         picker.querySelectorAll('input').forEach(function(i){ i.disabled = true; });
