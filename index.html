@@ -622,7 +622,7 @@
         <div class="price-tier-lbl">🔒 Tylko 100 miejsc</div>
         <h3>Dostęp miesięczny</h3>
         <div class="price-num mono">99 zł<span style="font-size:1rem;font-weight:700;color:var(--muted);">&nbsp;/ mies.</span></div>
-        <div class="price-sub">albo <a href="#" data-checkout-plan="price_1UFtERCYqOnrJwGYa3JfeYVM" style="color:inherit;text-decoration:underline;">790 zł / rok (ok. 66 zł mies.)</a> · rezygnacja w każdej chwili</div>
+        <div class="price-sub">albo <a href="#" data-checkout-plan="price_1UFtERCYqOnrJwGYa3JfeYVM" style="color:inherit;text-decoration:underline;">790 zł / rok (ok. 66 zł mies.)</a> zamiast <span style="text-decoration:line-through;">1188 zł</span> · rezygnacja w każdej chwili</div>
         <ul class="price-list">
           <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Co tydzień nowa, sprawdzona nisza z realnym potencjałem</li>
           <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Gotowe briefy i przykłady, nie tylko sama nazwa niszy</li>
@@ -754,73 +754,167 @@
 <style>
   @keyframes checkoutFadeIn{ from{ opacity:0; } to{ opacity:1; } }
   @keyframes checkoutPopIn{ from{ opacity:0; transform:translateY(14px) scale(.97); } to{ opacity:1; transform:translateY(0) scale(1); } }
-  .checkout-overlay{ position:fixed; inset:0; background:rgba(10,10,10,.55); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; animation:checkoutFadeIn .18s ease; }
+  @keyframes totalPulse{ 0%{ transform:scale(1); } 35%{ transform:scale(1.14); color:var(--red-text); } 100%{ transform:scale(1); } }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes elementFadeIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+  @keyframes checkDraw{ from{ stroke-dashoffset:48; } to{ stroke-dashoffset:0; } }
+  @keyframes checkPop{ 0%{ transform:scale(.4); opacity:0; } 60%{ transform:scale(1.08); opacity:1; } 100%{ transform:scale(1); } }
+
+  .checkout-overlay{ position:fixed; inset:0; background:rgba(10,10,10,.6); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; z-index:999; padding:20px; animation:checkoutFadeIn .18s ease; }
   .checkout-overlay.open{ display:flex; }
-  .checkout-box{ position:relative; background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:20px; max-width:440px; width:100%; padding:34px 30px 28px; max-height:90vh; overflow-y:auto; box-shadow:0 30px 70px -24px var(--shadow); animation:checkoutPopIn .22s cubic-bezier(.2,.8,.3,1); }
-  .checkout-box::before{ content:''; position:absolute; top:0; left:20px; right:20px; height:4px; border-radius:0 0 6px 6px; background:var(--red); }
-  .checkout-close{ position:absolute; top:16px; right:16px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--line); border-radius:50%; color:var(--muted); font-size:1.1rem; line-height:1; cursor:pointer; transition:color .15s ease, border-color .15s ease; }
-  .checkout-close:hover{ color:var(--ink); border-color:var(--red); }
-  .checkout-eyebrow{ font-size:.74rem; letter-spacing:.05em; text-transform:uppercase; color:var(--red-text); font-weight:700; display:inline-flex; align-items:center; gap:6px; margin-bottom:10px; }
-  .checkout-eyebrow .reddot{ width:7px; height:7px; border-radius:50%; background:var(--red); flex-shrink:0; }
-  .checkout-box h3{ margin:0 0 4px; font-size:1.4rem; color:var(--ink); }
-  .checkout-box .sub{ color:var(--muted); font-size:.88rem; margin-bottom:22px; line-height:1.5; }
-  .plan-picker{ display:grid; gap:10px; margin-bottom:20px; }
-  .plan-opt{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; border:1.5px solid var(--line); border-radius:12px; padding:13px 16px; cursor:pointer; transition:border-color .15s ease, background .15s ease; background:var(--surface); }
-  .plan-opt:hover{ border-color:var(--red-text); }
-  .plan-opt.active{ border-color:var(--red); background:color-mix(in srgb, var(--red) 7%, var(--surface)); }
+  .checkout-box{ position:relative; background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:20px; max-width:900px; width:100%; max-height:92vh; overflow-y:auto; box-shadow:0 30px 70px -24px var(--shadow); animation:checkoutPopIn .22s cubic-bezier(.2,.8,.3,1); }
+  .checkout-box::before{ content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--red); z-index:2; }
+  .checkout-close{ position:absolute; top:16px; right:16px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--bg); border:1px solid var(--line); border-radius:50%; color:var(--muted); font-size:1.1rem; line-height:1; cursor:pointer; transition:color .15s ease, border-color .15s ease, transform .15s ease; z-index:3; }
+  .checkout-close:hover{ color:var(--ink); border-color:var(--red); transform:rotate(90deg); }
+  .checkout-eyebrow{ font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; color:var(--red-text); font-weight:700; display:inline-flex; align-items:center; gap:6px; margin-bottom:10px; }
+  .checkout-eyebrow .reddot{ width:7px; height:7px; border-radius:50%; background:var(--red); flex-shrink:0; animation:checkoutFadeIn 1.6s ease infinite alternate; }
+
+  .checkout-grid{ display:grid; grid-template-columns:1fr 1fr; }
+  @media (max-width:760px){ .checkout-grid{ grid-template-columns:1fr; } }
+
+  .checkout-side{ padding:36px 32px; background:var(--surface); border-right:1px solid var(--line); border-radius:20px 0 0 20px; }
+  @media (max-width:760px){ .checkout-side{ border-right:none; border-bottom:1px solid var(--line); border-radius:20px 20px 0 0; padding:32px 26px 26px; } }
+
+  .checkout-brand{ display:flex; align-items:center; gap:9px; font-weight:700; font-size:.92rem; color:var(--ink); margin-bottom:22px; }
+  .checkout-brand .dot{ width:24px; height:24px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .checkout-brand .dot svg{ width:10px; height:10px; fill:#fff; }
+
+  .checkout-box h3{ margin:0 0 6px; font-size:1.5rem; font-weight:900; color:var(--ink); }
+  .checkout-side .sub{ color:var(--muted); font-size:.86rem; margin-bottom:24px; line-height:1.55; }
+
+  .plan-picker{ display:grid; gap:10px; margin-bottom:24px; }
+  .plan-opt{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; border:1.5px solid var(--line); border-radius:12px; padding:13px 16px; cursor:pointer; transition:border-color .15s ease, background .15s ease, transform .15s ease, box-shadow .15s ease; background:var(--bg); }
+  .plan-opt:hover{ border-color:var(--red-text); transform:translateY(-2px); box-shadow:0 10px 20px -14px var(--shadow); }
+  .plan-opt.active{ border-color:var(--red); background:color-mix(in srgb, var(--red) 7%, var(--bg)); box-shadow:0 0 0 1px var(--red); }
   .plan-opt input{ accent-color:var(--red); margin:0; width:16px; height:16px; flex-shrink:0; }
-  .plan-opt .pl{ display:flex; align-items:center; gap:10px; font-weight:600; color:var(--ink); font-size:.95rem; }
-  .plan-opt .pp{ font-family:'Roboto Mono',monospace; font-weight:700; color:var(--ink); text-align:right; }
-  .plan-opt .pp .sub-permies{ display:block; font-family:'Roboto',sans-serif; font-weight:500; font-size:.72rem; color:var(--muted); margin-top:1px; }
-  .plan-opt .badge{ font-size:.65rem; background:var(--red); color:var(--on-red); padding:2px 7px; border-radius:999px; margin-left:8px; font-weight:700; letter-spacing:.02em; vertical-align:1px; }
+  .plan-opt .pl{ display:flex; align-items:center; gap:10px; font-weight:600; color:var(--ink); font-size:.93rem; }
+  .plan-opt .pl .cal{ width:15px; height:15px; fill:var(--muted); flex-shrink:0; }
+  .plan-opt.active .pl .cal{ fill:var(--red-text); }
+  .plan-opt .pp{ font-family:'Roboto Mono',monospace; font-weight:700; color:var(--ink); text-align:right; font-size:.95rem; }
+  .plan-opt .pp .was{ display:block; font-family:'Roboto Mono',monospace; font-weight:500; font-size:.72rem; color:var(--muted); text-decoration:line-through; margin-bottom:1px; }
+  .plan-opt .pp .sub-permies{ display:block; font-family:'Roboto',sans-serif; font-weight:500; font-size:.7rem; color:var(--muted); margin-top:1px; }
+  .plan-opt .badge{ font-size:.62rem; background:var(--red); color:var(--on-red); padding:2px 7px; border-radius:999px; margin-left:8px; font-weight:700; letter-spacing:.02em; vertical-align:1px; }
+
+  .checkout-benefits{ list-style:none; margin:0; padding:18px 0 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:11px; }
+  .checkout-benefits li{ display:flex; gap:9px; font-size:.83rem; color:var(--muted); line-height:1.4; }
+  .checkout-benefits li svg{ width:14px; height:14px; fill:var(--growth); flex-shrink:0; margin-top:.2em; }
+
+  .checkout-main{ padding:36px 32px; display:flex; flex-direction:column; }
+  @media (max-width:760px){ .checkout-main{ padding:26px; } }
+  .checkout-main .step-lbl{ font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .checkout-main .step-lbl .step-dots{ display:inline-flex; gap:4px; }
+  .checkout-main .step-lbl .step-dots i{ width:5px; height:5px; border-radius:50%; background:var(--line); display:block; }
+  .checkout-main .step-lbl .step-dots i.on{ background:var(--red); }
+
+  .checkout-total-row{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-radius:12px; background:var(--surface); border:1px solid var(--line); margin-bottom:20px; }
+  .checkout-total-row .lbl{ font-size:.82rem; color:var(--muted); }
+  .checkout-total-row .lbl small{ display:block; font-size:.72rem; margin-top:2px; }
+  .checkout-total-row strong{ color:var(--ink); font-size:1.3rem; font-family:'Roboto Mono',monospace; font-weight:900; display:inline-block; }
+  .checkout-total-row strong.pulse{ animation:totalPulse .38s ease; }
+
   .checkout-box label.field{ display:block; font-size:.82rem; margin-bottom:7px; color:var(--muted); font-weight:600; }
   .checkout-box input[type=email]{ width:100%; box-sizing:border-box; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:.95rem; margin-bottom:18px; font-family:'Roboto',sans-serif; transition:border-color .15s ease; }
-  .checkout-box input[type=email]:focus{ border-color:var(--red); }
+  .checkout-box input[type=email]:focus{ border-color:var(--red); outline:none; }
   #payment-element{ margin-bottom:6px; min-height:2px; }
+  #payment-element.mounted{ animation:elementFadeIn .3s ease; }
   #payment-element:not(:empty){ padding:14px; border:1.5px solid var(--line); border-radius:10px; background:var(--surface); margin-bottom:18px; }
-  .checkout-submit-btn{ width:100%; justify-content:center; font-size:1rem; padding:14px 22px; }
-  .checkout-submit-btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+  .checkout-submit-btn{ width:100%; justify-content:center; font-size:1rem; padding:14px 22px; margin-top:auto; position:relative; gap:10px; }
+  .checkout-submit-btn:disabled{ opacity:.75; cursor:not-allowed; }
+  .checkout-submit-btn .spinner{ width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; flex-shrink:0; }
+  .checkout-submit-btn.loading .spinner{ display:inline-block; }
+  .checkout-submit-btn.loading .btn-label::after{ content:'...'; }
+
   .checkout-msg{ font-size:.85rem; margin-top:12px; text-align:center; min-height:1.2em; font-weight:600; }
   .checkout-msg.err{ color:#e5484d; }
   .checkout-msg.ok{ color:var(--growth); }
-  .checkout-trust{ display:flex; flex-wrap:wrap; gap:14px; margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
-  .checkout-trust span{ display:flex; align-items:center; gap:6px; font-size:.74rem; color:var(--muted); }
+
+  .checkout-success{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:12px 0 4px; }
+  .checkout-success .ring{ width:64px; height:64px; border-radius:50%; background:color-mix(in srgb, var(--growth) 16%, transparent); display:flex; align-items:center; justify-content:center; margin-bottom:16px; animation:checkPop .45s cubic-bezier(.2,.9,.4,1.2); }
+  .checkout-success .ring svg{ width:30px; height:30px; }
+  .checkout-success .ring svg path{ fill:none; stroke:var(--growth); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:48; stroke-dashoffset:48; animation:checkDraw .5s .25s ease forwards; }
+  .checkout-success h4{ font-size:1.1rem; margin:0 0 8px; font-weight:900; }
+  .checkout-success p{ color:var(--muted); font-size:.88rem; max-width:34ch; margin:0; }
+
+  .checkout-trust{ display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
+  .checkout-trust span{ display:flex; align-items:center; gap:6px; font-size:.72rem; color:var(--muted); }
   .checkout-trust svg{ width:14px; height:14px; fill:var(--muted); flex-shrink:0; }
+  .checkout-cards{ display:flex; align-items:center; gap:6px; margin-left:auto; }
+  .checkout-cards svg{ width:auto; height:16px; }
+  @media (max-width:420px){ .checkout-cards{ margin-left:0; } }
 </style>
 
 <div class="checkout-overlay" id="checkoutOverlay">
   <div class="checkout-box">
     <button type="button" class="checkout-close" id="checkoutClose" aria-label="Zamknij">&#10005;</button>
-    <span class="checkout-eyebrow"><span class="reddot"></span>Bezpieczna płatność</span>
-    <h3>Grupka Insiderów</h3>
-    <div class="sub">Wybierz plan i dołącz - płatność obsługuje Stripe, ten sam system co Amazon czy Booking.com.</div>
+    <div class="checkout-grid">
+      <div class="checkout-side">
+        <div class="checkout-brand"><span class="dot"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>Shortownia</div>
+        <span class="checkout-eyebrow"><span class="reddot"></span>Bezpieczna płatność - Stripe</span>
+        <h3>Grupka Insiderów</h3>
+        <div class="sub">Co tydzień nowa, sprawdzona nisza z realnym potencjałem, gotowe briefy i priorytetowy dostęp do mnie. Wybierz plan poniżej.</div>
 
-    <div class="plan-picker" id="planPicker">
-      <label class="plan-opt" data-plan="month">
-        <span class="pl"><input type="radio" name="plan" value="price_1UFtEHCYqOnrJwGYZJoDLb5a"> Miesiąc</span>
-        <span class="pp">99 zł</span>
-      </label>
-      <label class="plan-opt active" data-plan="quarter">
-        <span class="pl"><input type="radio" name="plan" value="price_1UFtNECYqOnrJwGYlxPIBbC9" checked> 3 miesiące<span class="badge">Popularne</span></span>
-        <span class="pp">267 zł<span class="sub-permies">89 zł / mies.</span></span>
-      </label>
-      <label class="plan-opt" data-plan="year">
-        <span class="pl"><input type="radio" name="plan" value="price_1UFtERCYqOnrJwGYa3JfeYVM"> Rok<span class="badge">-34%</span></span>
-        <span class="pp">790 zł<span class="sub-permies">66 zł / mies.</span></span>
-      </label>
-    </div>
+        <div class="plan-picker" id="planPicker">
+          <label class="plan-opt" data-plan="month" data-total="99 zł">
+            <span class="pl"><svg class="cal" viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM5 9h14v9H5V9z"/></svg><input type="radio" name="plan" value="price_1UFtEHCYqOnrJwGYZJoDLb5a"> Miesiąc</span>
+            <span class="pp">99 zł</span>
+          </label>
+          <label class="plan-opt active" data-plan="quarter" data-total="267 zł">
+            <span class="pl"><svg class="cal" viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM5 9h14v9H5V9z"/></svg><input type="radio" name="plan" value="price_1UFtNECYqOnrJwGYlxPIBbC9" checked> 3 miesiące<span class="badge">Popularne</span></span>
+            <span class="pp"><span class="was">297 zł</span>267 zł<span class="sub-permies">89 zł / mies.</span></span>
+          </label>
+          <label class="plan-opt" data-plan="year" data-total="790 zł">
+            <span class="pl"><svg class="cal" viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM5 9h14v9H5V9z"/></svg><input type="radio" name="plan" value="price_1UFtERCYqOnrJwGYa3JfeYVM"> Rok<span class="badge">-34%</span></span>
+            <span class="pp"><span class="was">1188 zł</span>790 zł<span class="sub-permies">66 zł / mies.</span></span>
+          </label>
+        </div>
 
-    <label class="field" for="checkoutEmail">Adres e-mail (na niego wyślemy dostęp)</label>
-    <input type="email" id="checkoutEmail" placeholder="ty@przyklad.pl" autocomplete="email" required>
+        <ul class="checkout-benefits">
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Co tydzień nowa nisza z realnym potencjałem</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Gotowe briefy i przykłady, nie tylko nazwa niszy</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Priorytetowe pytania i live'y ze mną</li>
+          <li><svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>Rezygnacja w każdej chwili, bez zobowiązań</li>
+        </ul>
+      </div>
 
-    <div id="payment-element"></div>
+      <div class="checkout-main">
+        <div class="step-lbl" id="checkoutStepLbl">
+          <span class="step-dots"><i class="on"></i><i></i></span>
+          <span id="checkoutStepText">Krok 1 z 2 - Twoje dane</span>
+        </div>
 
-    <button type="button" class="btn btn-primary checkout-submit-btn" id="checkoutSubmit">Przejdź do płatności</button>
-    <div class="checkout-msg" id="checkoutMsg"></div>
-    <div class="checkout-trust">
-      <span><svg viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>Szyfrowanie SSL</span>
-      <span><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM4 8V6h16v2zm0 2h16v8H4z"/></svg>Karta, BLIK, przelew</span>
-      <span><svg viewBox="0 0 24 24"><path d="M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6z"/></svg>Obsługa: Stripe</span>
+        <div id="checkoutFormWrap">
+          <div class="checkout-total-row">
+            <span class="lbl">Do zapłaty dziś<small>Grupka Insiderów</small></span>
+            <strong id="checkoutTotal">267 zł</strong>
+          </div>
+
+          <label class="field" for="checkoutEmail">Adres e-mail (na niego wyślemy dostęp)</label>
+          <input type="email" id="checkoutEmail" placeholder="ty@przyklad.pl" autocomplete="email" required>
+
+          <div id="payment-element"></div>
+
+          <button type="button" class="btn btn-primary checkout-submit-btn" id="checkoutSubmit">
+            <span class="spinner"></span><span class="btn-label">Przejdź do płatności</span>
+          </button>
+          <div class="checkout-msg" id="checkoutMsg"></div>
+          <div class="checkout-trust">
+            <span><svg viewBox="0 0 24 24"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 8V6a3 3 0 0 1 6 0v3z"/></svg>Szyfrowanie SSL</span>
+            <span><svg viewBox="0 0 24 24"><path d="M12 2 3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6z"/></svg>Stripe</span>
+            <span class="checkout-cards" aria-hidden="true">
+              <svg viewBox="0 0 36 24"><rect width="36" height="24" rx="4" fill="#1A1F71"/><text x="18" y="16" font-family="Arial,Helvetica,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">VISA</text></svg>
+              <svg viewBox="0 0 36 24"><rect width="36" height="24" rx="4" fill="#16171A"/><circle cx="15" cy="12" r="6.5" fill="#EB001B"/><circle cx="21" cy="12" r="6.5" fill="#F79E1B" fill-opacity=".9"/></svg>
+              <svg viewBox="0 0 36 24"><rect width="36" height="24" rx="4" fill="#000"/><text x="18" y="16" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">BLIK</text></svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="checkout-success" id="checkoutSuccess" hidden>
+          <div class="ring"><svg viewBox="0 0 24 24"><path d="M4 13l5 5L20 6"/></svg></div>
+          <h4>Dziękujemy za dołączenie!</h4>
+          <p>Płatność przyjęta - dostęp do Grupki Insiderów wyślemy na maila w ciągu kilku minut.</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -838,7 +932,29 @@
   var emailInput = document.getElementById('checkoutEmail');
   var submitBtn = document.getElementById('checkoutSubmit');
   var msgEl = document.getElementById('checkoutMsg');
+  var totalEl = document.getElementById('checkoutTotal');
+  var stepText = document.getElementById('checkoutStepText');
+  var stepDots = document.querySelectorAll('#checkoutStepLbl .step-dots i');
+  var paymentElDiv = document.getElementById('payment-element');
+  var formWrap = document.getElementById('checkoutFormWrap');
+  var successEl = document.getElementById('checkoutSuccess');
   var elements = null, currentClientSecret = null;
+
+  function refreshTotal(){
+    var checked = picker.querySelector('input[name=plan]:checked');
+    var opt = checked ? checked.closest('.plan-opt') : null;
+    if(opt && totalEl){
+      totalEl.textContent = opt.getAttribute('data-total') || '';
+      totalEl.classList.remove('pulse');
+      void totalEl.offsetWidth;
+      totalEl.classList.add('pulse');
+    }
+  }
+
+  function setStep(n){
+    stepDots.forEach(function(d, i){ d.classList.toggle('on', i < n); });
+    stepText.textContent = n === 1 ? 'Krok 1 z 2 - Twoje dane' : 'Krok 2 z 2 - Płatność';
+  }
 
   function setActivePlan(priceId){
     var radio = picker.querySelector('input[value="'+priceId+'"]');
@@ -846,10 +962,13 @@
     radio.checked = true;
     picker.querySelectorAll('.plan-opt').forEach(function(o){ o.classList.remove('active'); });
     radio.closest('.plan-opt').classList.add('active');
+    refreshTotal();
   }
 
   function openModal(defaultPriceId){
     if(defaultPriceId) setActivePlan(defaultPriceId);
+    refreshTotal();
+    setStep(1);
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -865,6 +984,7 @@
       picker.querySelectorAll('.plan-opt').forEach(function(o){ o.classList.remove('active'); });
       opt.classList.add('active');
       opt.querySelector('input').checked = true;
+      refreshTotal();
     });
   });
 
@@ -878,6 +998,10 @@
   function setMsg(text, kind){
     msgEl.textContent = text || '';
     msgEl.className = 'checkout-msg' + (kind ? ' ' + kind : '');
+  }
+  function setLoading(on){
+    submitBtn.classList.toggle('loading', !!on);
+    submitBtn.disabled = !!on;
   }
 
   submitBtn.addEventListener('click', async function(){
@@ -894,11 +1018,11 @@
       return;
     }
 
-    submitBtn.disabled = true;
+    setLoading(true);
 
     try{
       if(!currentClientSecret){
-        setMsg('Przygotowuję płatność...', '');
+        setMsg('', '');
         var res = await fetch('/api/create-subscription', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -923,38 +1047,38 @@
         });
         var paymentElement = elements.create('payment');
         paymentElement.mount('#payment-element');
+        paymentElDiv.classList.add('mounted');
         picker.querySelectorAll('input').forEach(function(i){ i.disabled = true; });
         emailInput.disabled = true;
         setMsg('', '');
-        submitBtn.textContent = 'Zapłać';
-        submitBtn.disabled = false;
+        submitBtn.querySelector('.btn-label').textContent = 'Zapłać';
+        setLoading(false);
+        setStep(2);
         return;
       }
 
-      setMsg('Przetwarzam płatność...', '');
+      setLoading(true);
+      setMsg('', '');
       var result = await stripe.confirmPayment({
         elements: elements,
         confirmParams: { return_url: window.location.href.split('?')[0] + '?payment=success' }
       });
       if(result.error){
         setMsg(result.error.message || 'Płatność nie powiodła się.', 'err');
-        submitBtn.disabled = false;
+        setLoading(false);
       }
     }catch(err){
       setMsg(err.message || 'Coś poszło nie tak.', 'err');
-      submitBtn.disabled = false;
+      setLoading(false);
     }
   });
 
   if(window.location.search.indexOf('payment=success') !== -1){
     document.addEventListener('DOMContentLoaded', function(){
       openModal();
-      setMsg('Dziękujemy! Płatność przyjęta - dostęp do grupy wyślemy na maila w ciągu kilku minut.', 'ok');
-      submitBtn.style.display = 'none';
-      picker.style.display = 'none';
-      emailInput.style.display = 'none';
-      var lbl = document.querySelector('label[for=checkoutEmail]');
-      if(lbl) lbl.style.display = 'none';
+      formWrap.hidden = true;
+      successEl.hidden = false;
+      document.getElementById('checkoutStepLbl').hidden = true;
     });
   }
 })();
