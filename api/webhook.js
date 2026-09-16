@@ -35,6 +35,21 @@ export async function POST(request) {
       console.log('Nieudana płatność subskrypcji:', invoice.customer_email || invoice.customer);
       break;
     }
+    case 'payment_intent.succeeded': {
+      const pi = event.data.object;
+      if (pi.metadata && pi.metadata.source === 'shortownia-site') {
+        console.log('Opłacono produkt jednorazowy:', pi.receipt_email, pi.metadata.priceId);
+        // TODO: automatyczna wysyłka ebooka/dostępu do kursu na maila
+      }
+      break;
+    }
+    case 'payment_intent.payment_failed': {
+      const pi = event.data.object;
+      if (pi.metadata && pi.metadata.source === 'shortownia-site') {
+        console.log('Nieudana płatność jednorazowa:', pi.receipt_email, pi.metadata.priceId);
+      }
+      break;
+    }
     default:
       break;
   }
