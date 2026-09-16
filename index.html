@@ -783,6 +783,7 @@
   .checkout-side .sub{ color:var(--muted); font-size:.86rem; margin-bottom:24px; line-height:1.55; }
 
   .plan-picker{ display:grid; gap:10px; margin-bottom:24px; }
+  .plan-picker[hidden]{ display:none; }
   .plan-opt{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; border:1.5px solid var(--line); border-radius:12px; padding:13px 16px; cursor:pointer; transition:border-color .15s ease, background .15s ease, transform .15s ease, box-shadow .15s ease; background:var(--bg); }
   .plan-opt:hover{ border-color:var(--red-text); transform:translateY(-2px); box-shadow:0 10px 20px -14px var(--shadow); }
   .plan-opt.active{ border-color:var(--red); background:color-mix(in srgb, var(--red) 7%, var(--bg)); box-shadow:0 0 0 1px var(--red); }
@@ -796,6 +797,7 @@
   .plan-opt .badge{ font-size:.62rem; background:var(--red); color:var(--on-red); padding:2px 7px; border-radius:999px; margin-left:8px; font-weight:700; letter-spacing:.02em; vertical-align:1px; }
 
   .single-price{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 18px; border:1.5px solid var(--line); border-radius:12px; background:var(--bg); margin-bottom:24px; }
+  .single-price[hidden]{ display:none; }
   .single-price .sp-amount{ font-family:'Roboto Mono',monospace; font-size:1.6rem; font-weight:900; color:var(--ink); }
   .single-price .sp-note{ font-size:.78rem; color:var(--muted); max-width:16ch; text-align:right; }
 
@@ -806,6 +808,7 @@
   .checkout-main{ padding:36px 32px; display:flex; flex-direction:column; }
   @media (max-width:760px){ .checkout-main{ padding:26px; } }
   .checkout-main .step-lbl{ font-size:.72rem; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .checkout-main .step-lbl[hidden]{ display:none; }
   .checkout-main .step-lbl .step-dots{ display:inline-flex; gap:4px; }
   .checkout-main .step-lbl .step-dots i{ width:5px; height:5px; border-radius:50%; background:var(--line); display:block; }
   .checkout-main .step-lbl .step-dots i.on{ background:var(--red); }
